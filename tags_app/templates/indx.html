@@ -1,0 +1,26 @@
+{% {% extends "base.html" %}%}
+{%block title%} Learning Django templates{%endblock title%}
+{% block content%}
+<p>{{x}}</p>
+{% comment %} django template tags {% endcomment %}
+{%tag_name arguments%}content{%endtag_name%}
+
+{%if user.authenticated%}
+    welcome, {{user.username}}!
+{%else%}
+    please log in 
+
+{%endif%}
+
+{% comment %}  for tags {% endcomment %}
+<ul>
+    {%for item in items%}
+    <li>{{item}}</li>
+    {%endfor%}
+    <ul>
+
+{% comment %} block {% endcomment %}
+{%block title%} 
+Django Template Tags
+{%{% endblock title %}%}
+{%endblock content%}
