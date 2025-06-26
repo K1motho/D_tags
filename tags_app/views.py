@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import datetime
-from.models import Blog
+from.models import Blog, Subscriber
 import markdown
 from django.utils.safestring import mark_safe
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
@@ -35,3 +36,32 @@ def blog_list(request):
      for blog in blogs:
           blog.rendered_text = mark_safe(markdown.markdown(blog.text))
      return render(request ,'blog_list.html', {'blogs': blogs})
+
+def subscribe(request):
+    context = {}
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+
+        if not email:
+            messages.error(request, 'Please enter a valid email address.')
+            return redirect('subscribe')
+
+        if 'unsubscribe' in request.POST:
+            deleted, _ = Subscriber.objects.filter(email=email).delete()
+            if deleted:
+                messages.success(request, f'{email} has been unsubscribed.')
+            else:
+                messages.info(request, f'{email} was not found in our list.')
+            return redirect('subscribe')
+
+        if Subscriber.objects.filter(email=email).exists():
+            messages.error(request, 'You are already subscribed.')
+            context['existing_email'] = email  # Enables unsubscribe button
+        else:
+            Subscriber.objects.create(email=email)
+            messages.success(request, 'Thank you for subscribing!')
+            return redirect('subscribe')
+
+    return render(request, 'subscribe.html', context)
+
